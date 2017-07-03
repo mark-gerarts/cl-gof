@@ -8,4 +8,5 @@
   :depends-on (#:croatoan)
   :components ((:module "src"
                 :components ((:file "package")
-                             (:file "game-of-life")))))
+                             (:file "game-of-life")
+                             (:file "ui")))))

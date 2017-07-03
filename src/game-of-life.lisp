@@ -2,9 +2,19 @@
 
 (in-package #:game-of-life)
 
-(defparameter *grid-layout* (list "....."
-                                  ".xxx."
-                                  ".....")
+;; The start layout is hardcoded for now. It's a PD to be able to test the
+;; various steps.
+(defparameter *grid-layout* (list ".................."
+                                  ".................."
+                                  ".................."
+                                  ".................."
+                                  "......x....x......"
+                                  "....xx.xxxx.xx...."
+                                  "......x....x......"
+                                  ".................."
+                                  ".................."
+                                  ".................."
+                                  "..................")
   "The initial layout of the grid")
 
 (defvar *grid* nil
@@ -19,7 +29,8 @@
 (defstruct grid
   "Represents the grid, with a flat list of cells."
   cells
-  (width 0))
+  (width 0)
+  (height 0))
 
 (defun get-total-alive-neighbours (cell grid)
   "Counts the number of alive neighbours of a given cell."
@@ -45,14 +56,6 @@
                       neighbour-coords)))
     (length (remove-if-not #'cell-alive-p (remove nil neighbours)))))
 
-(defun render (grid)
-  "Very basic render method. Sends the grid as a string to the output."
-  (loop for cell in (grid-cells grid)
-        for i from 1 do
-          (format t "~A~A"
-                  (if (cell-alive-p cell) "x" ".")
-                  (if (= (mod i (grid-width grid)) 0) #\Newline ""))))
-
 (defun parse-grid-layout (layout)
   "Parses a grid layout into a list of cell structs. The grid layout should be a
    list of strings, with each string representing a single row of the grid."
@@ -69,9 +72,10 @@
   "Creates a grid instance from a layout."
   (make-grid
    :cells (parse-grid-layout grid-layout)
-   :width (length (car grid-layout))))
+   :width (length (car grid-layout))
+   :height (length grid-layout)))
 
-(defun init ()
+(defun init-grid ()
   "Initializes the grid"
   (setf *grid* (create-grid *grid-layout*)))
 
