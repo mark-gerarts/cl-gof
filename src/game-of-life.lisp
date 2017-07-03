@@ -77,12 +77,15 @@
 
 (defun grid-step (grid)
   "Steps the game forward one turn."
-  (loop for cell in (grid-cells grid) do
-    (let ((alive-neighbours (get-total-alive-neighbours cell grid)))
-      (print (list (cell-x cell) (cell-y cell)))
-      (print alive-neighbours)
-      (setf
-       (cell-alive-p cell)
-       (or
-        (= alive-neighbours 3)
-        (and (cell-alive-p cell) (= alive-neighbours 2)))))))
+  (setf (grid-cells grid)
+        (loop for cell in (grid-cells grid)
+              collect
+              (let* ((alive-neighbours (get-total-alive-neighbours cell grid))
+                     (new-state (or (= alive-neighbours 3)
+                                    (and
+                                     (cell-alive-p cell)
+                                     (= alive-neighbours 2)))))
+                (make-cell
+                 :alive-p new-state
+                 :x (cell-x cell)
+                 :y (cell-y cell))))))
