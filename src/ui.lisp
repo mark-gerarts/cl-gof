@@ -2,6 +2,12 @@
 
 (in-package #:game-of-life)
 
+(defconstant +cell-alive-color+ :cyan)
+(defconstant +cell-alive-char+ #\#)
+(defconstant +cell-empty-color+ :white)
+(defconstant +cell-empty-char+ #\.)
+(defconstant +bg-color+ :black)
+
 (defun get-screen-center (scr)
   "Calculates the center position of the screen. Outputs a list '(x y)."
   (let* ((center-x (floor (/ (.width scr) 2)))
@@ -17,19 +23,28 @@
     (loop for cell in (grid-cells grid)
           for i from 0 do
             (move scr (+ start-y (cell-y cell)) (+ start-x (cell-x cell)))
-            (format scr "~A" (if (cell-alive-p cell) "x" ".")))
+            (add scr
+                 (if (cell-alive-p cell) +cell-alive-char+ +cell-empty-char+)
+                 :color-pair (list
+                              (if (cell-alive-p cell)
+                                  +cell-alive-color+
+                                  +cell-empty-color+)
+                              +bg-color+)))
     (refresh scr)))
 
 (defun step-and-render (grid scr)
   "Combines stepping and rendering in a single function."
   (progn (grid-step grid) (render grid scr)))
 
-
 (defun start-application ()
   "Main entry point."
-  (with-screen (scr :input-echoing nil :input-blocking t :enable-colors t)
+  (with-screen (scr
+                :input-echoing nil
+                :input-blocking t
+                :enable-colors t
+                :cursor-visibility t)
     (init-grid)
     (render *grid* scr)
     (event-case (scr event)
-      (#\q (return-from event-case))
-      (#\s (step-and-render *grid* scr)))))
+                (#\q (return-from event-case))
+                (#\s (step-and-render *grid* scr)))))
